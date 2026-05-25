@@ -1,0 +1,20 @@
+const express=require('express');
+const cors=require('cors');
+const { usersignInroute, usersignUproute, edituserRoute, deleteuserRoute } = require('./routes/user.route');
+const { postCategory, patchCategory, removeCategory, addProduct, removeProduct, removeImage, patchProduct } = require('./routes/admin.route');
+const app=express();
+app.use(express.json());
+app.use(cors());
+app.use('/files',express.static('uploads'));
+app.use('/api/user/v1',usersignUproute);
+app.use('/api/user/v1',usersignInroute);
+app.use('/api/user/v1',edituserRoute);
+app.use('/api/user/v1',deleteuserRoute);
+app.use('/api/admin/categories/v1',postCategory);
+app.use('/api/admin/categories/v1',patchCategory);
+app.use('/api/admin/categories/v1',removeCategory);
+app.use('/api/admin/products/v1',addProduct);
+app.use('/api/admin/products/v1',removeProduct);
+app.use('/api/admin/products/v1',patchProduct);
+
+module.exports=app;

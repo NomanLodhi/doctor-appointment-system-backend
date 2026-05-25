@@ -1,0 +1,43 @@
+const USERS=require('./users.model');
+const DOCTOR_PROFILES=require('./doctor_profiles.model');
+const ORDERS=require('./orders.model');
+const CATEGORIES=require('./categories.model');
+const ADDRESSES=require('./addresses.model');
+const PRODUCTS=require('./products.model');
+const ORDER_ITEMS=require('./order_items.model');
+const DOCTOR_AVAILABILITY=require('./doctor_availability.model');
+const APPOINTMENTS=require('./appointments.model');
+const PAYMENTS=require('./payments.model');
+
+const db={};
+db.users=USERS;
+db.doctor_profiles=DOCTOR_PROFILES;
+db.orders=ORDERS;
+db.categories=CATEGORIES;
+db.addresses=ADDRESSES;
+db.products=PRODUCTS;
+db.order_items=ORDER_ITEMS;
+db.doctor_availability=DOCTOR_AVAILABILITY;
+db.Appointments=APPOINTMENTS;
+db.payments=PAYMENTS;
+
+db.users.hasOne(db.doctor_profiles,{foreignKey:'user_id'});
+db.doctor_profiles.belongsTo(db.users);
+db.users.hasOne(db.doctor_availability,{foreignKey:'user_id'});
+db.doctor_availability.belongsTo(db.users);
+db.users.hasMany(db.orders,{foreignKey:'user_id'});
+db.orders.belongsTo(db.users);
+db.categories.hasMany(db.products,{foreignKey:'category_id'});
+db.products.belongsTo(db.categories);
+db.orders.hasMany(db.order_items,{foreignKey:'order_id'});
+db.order_items.belongsTo(db.orders);
+db.products.hasMany(db.order_items,{foreignKey:'product_id'});
+db.order_items.belongsTo(db.products);
+db.users.hasMany(db.Appointments,{foreignKey:'user_id'});
+db.Appointments.belongsTo(db.users);
+db.users.hasMany(db.payments,{foreignKey:'user_id'});
+db.payments.belongsTo(db.users);
+db.users.hasMany(db.addresses,{foreignKey:'user_id'});
+db.addresses.belongsTo(db.users);
+
+module.exports=db;
