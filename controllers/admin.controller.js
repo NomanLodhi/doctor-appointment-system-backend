@@ -114,8 +114,8 @@ try{
     const existingImages=JSON.parse(productRow.images);
     const images=[];
     const newArray= newimages.forEach(img=>images.push(img.filename))
-    const newImages=[...images,existingImages];
-     
+    const newImages=[...existingImages,...images];
+    
     
     await db.products.update({name:name,slug:slug,description:description,price:price,sku:sku,sale_price:sale_price,stock_quantity:stock_quantity,images:newImages},{where:{id:id}});
     await res.status(200).json({'status':'success','msg':'product edited successfully!!'})

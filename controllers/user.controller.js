@@ -72,7 +72,7 @@ const usersignIn=async(req,res)=>{
    await res.status(401).json({'Status':'Error','msg':'Incorrect Password!!'});
      };
    const genToken=(email)=>{
-      return JWT.sign({email},jwt_token,{expiresIn:'24h'})
+      return JWT.sign({email,role:user.role},jwt_token,{expiresIn:'24h'})
    }
    const token=genToken(email);
    await res.status(200).json({'msg':'User sign in!!','Token':token});
@@ -82,7 +82,21 @@ const usersignIn=async(req,res)=>{
        await res.status(400).json({'msg':`Error while sign in ${err.message}`})
     }
 }
+const getUser= async (req,res)=>{
+try{
+  const {email}= req.params;
+  const user = await db.users.findOne({where:{email:email}});
+  if(!user){
+   res.status(401).json({'msg':'user not found!!'});
+   }
+   res.status(200).json({'msg':'user found successfully!','data':user})
 
+
+}
+catch(err){
+   res.status(401).json({"msg":`Error while getting user!! ${err.message}`})
+}
+}
 const editUser=async(req,res)=>{
    try{
    const {name,email,phone,password,city,province,postal_code}=req.body;
@@ -113,4 +127,4 @@ catch(err){
     }
 }
 
-module.exports={usersignIn,userRegister,editUser,deleteUser}
+module.exports={usersignIn,userRegister,editUser,deleteUser,getUser}
