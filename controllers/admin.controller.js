@@ -1,7 +1,10 @@
 const db=require('../models/index');
 const fs=require('fs');
 const path=require('path');
+const bcryptjs=require('bcryptjs');
 const { where, Sequelize } = require('sequelize');
+const transporter = require('../config/mailer');
+
 
 const uploadCategory=async(req,res)=>{
 try{
@@ -148,5 +151,72 @@ catch(err){
 }
 
 }
+const getAllorders=async(req,res)=>{
+    try{
+    const orders=await db.orders.findAll({attributes:['order_number','status','subtotal','total','shipping_address','notes','user_id'],include:[{model:db.order_items}]});
+    
+    await res.status(200).json({"Status":"Success","data":orders})
+    }
+        
+    catch(err){
+        await res.status(400).json({"Status":"Error","msg":`Error while getting orders ${err.message}`})
+    }
+}
+const getSingleorder=async(req,res)=>{
+    try{
+     const {id}=req.params   
+    const order=await db.orders.findOne({where:{id},attributes:['order_number','status','subtotal','total','shipping_address','notes','user_id'],include:[{model:db.order_items}]});
+    await res.status(200).json({"Status":"Success","data":order})
+    }
+        
+    catch(err){
+        await res.status(400).json({"Status":"Error","msg":`Error while getting order ${err.message}`})
+    }
+}
+const registerDoctor=async(req,res)=>{
+    try{
+    const {name,email,password,phone,role,gender,specialization,bio,avatar,fee,day_of_week,start_time,end_time}=req.body;
+    if(!name || !email || !password || !role || !gender || !specialization || !bio || !fee || !phone || !day_of_week || !start_time || !end_time){
+        await res.status(401).json({"msg":"All fields are required!!"});
+    }    
+     const user_id=req.user.id;
+     const SALT=await bcryptjs.genSalt(10);
+     const MIX=await bcryptjs.hash(password,SALT);
+     await db.users.create({
+        name:name,
+        email:email,
+        password:MIX,
+        phone:phone,
+        role:role,
+        gender:gender,
+        doctor_profile:{
+            specialization:specialization,
+            bio:bio,
+            avatar:avatar,
+            fee:fee
+        },
+        doctor_availability:{
+            day_of_week:day_of_week,
+            start_time:start_time,
+            end_time:end_time
+        }
+     },{
+      include:[db.doctor_profiles,db.doctor_availability]
+   })
+    const user= await db.users.findOne({where:{id:user_id}});
+    await transporter.sendMail({
+        from:"<nomanlodhi348@gmail.com>",
+        to:user.email,
+        subject:`Congrates ${user.name} you have been joined our online clinic`,
+        html:`<h1>Congrates ${user.name} you have been joined our online clinic</h1>
+        <p>Looking forward working with you.</p>
+        `
+    })
+    await res.status(200).json({"Status":"Success","Data":"Doctor registered successfully!!"})
+    }
+    catch(err){
+        await res.status(401).json({"Status":"Error","msg":`Error while registring doctor ${err}!!`})
+    }
+}
 
-module.exports={uploadCategory,editCategory,deleteCategory,uploadProduct,deleteProduct,editProduct,deleteImage};
+module.exports={uploadCategory,editCategory,deleteCategory,uploadProduct,deleteProduct,editProduct,deleteImage,getAllorders,getSingleorder,registerDoctor};

@@ -3,19 +3,11 @@ const validator=require('validator');
 const bcryptjs=require('bcryptjs');
 const nodemailer=require('nodemailer');
 const db=require('../models/index');
-const { where } = require('sequelize');
+const transporter = require('../config/mailer');
+
 require('dotenv').config();
 const jwt_token=process.env.JWT;
 
-const transporter=nodemailer.createTransport({
-      host:'smtp.gmail.com',
-      port:587,
-      secure:false,
-      auth:{
-         user:process.env.SMTP_USER,
-         pass:process.env.SMTP_PASSWORD
-      }
-     });
 
 const userRegister=async(req,res)=>{
     try{
@@ -55,8 +47,6 @@ const userRegister=async(req,res)=>{
        await res.status(401).json({'Status':'Error','msg':`Error while sign up ${err.message}`})
     }
 }
-
-
 const usersignIn=async(req,res)=>{
     try{
     const {email,password}=req.body;
@@ -72,7 +62,7 @@ const usersignIn=async(req,res)=>{
    await res.status(401).json({'Status':'Error','msg':'Incorrect Password!!'});
      };
    const genToken=(email)=>{
-      return JWT.sign({email,role:user.role},jwt_token,{expiresIn:'24h'})
+      return JWT.sign({id:user.id,role:user.role},jwt_token,{expiresIn:'24h'})
    }
    const token=genToken(email);
    await res.status(200).json({'msg':'User sign in!!','Token':token});
@@ -84,8 +74,8 @@ const usersignIn=async(req,res)=>{
 }
 const getUser= async (req,res)=>{
 try{
-  const {email}= req.params;
-  const user = await db.users.findOne({where:{email:email}});
+  const {id}= req.params;
+  const user = await db.users.findOne({where:{id:id}});
   if(!user){
    res.status(401).json({'msg':'user not found!!'});
    }

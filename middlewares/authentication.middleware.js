@@ -12,11 +12,10 @@ const authentication_middleware=(req,res,next)=>{
         return res.status(500).json({"msg":err.message}) ;
         }
          
-        if(!decoded || !decoded.email || !decoded.role){ 
+        if(!decoded || !decoded.id || !decoded.role){ 
         return res.status(401).json({"msg":"Invalid Token"}) ;
         }
         req.user=decoded;
-        
         next()
     })    
 }

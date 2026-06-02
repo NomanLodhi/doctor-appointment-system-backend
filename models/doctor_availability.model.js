@@ -1,7 +1,7 @@
 const { DataTypes }=require('sequelize');
 const sequelize=require('../config/db');
 
-const doctor_availability=sequelize.define('doctor_availability',{
+const doctor_availabilities=sequelize.define('doctor_availability',{
     id:{
         type:DataTypes.UUID,
         defaultValue:DataTypes.UUIDV4,
@@ -28,4 +28,4 @@ const doctor_availability=sequelize.define('doctor_availability',{
         allowNull:false
     }
 })
-module.exports=doctor_availability;
+module.exports=doctor_availabilities;

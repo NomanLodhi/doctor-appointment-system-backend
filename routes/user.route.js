@@ -5,7 +5,7 @@ const route=express.Router();
 
 route.post('/signup',userRegister)
 route.post('/signin',usersignIn)  
-route.get('/:email',authentication_middleware,authorizeRole('Admin','Doctor','Customer'),getUser);
+route.get('/:id',authentication_middleware,authorizeRole('Admin','Doctor','Customer'),getUser);
 route.patch('/edituser/:id',editUser)  
 route.delete('/deleteuser/:id',deleteUser)  
 
