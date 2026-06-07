@@ -7,7 +7,6 @@ const PRODUCTS=require('./products.model');
 const ORDER_ITEMS=require('./order_items.model');
 const DOCTOR_AVAILABILITY=require('./doctor_availability.model');
 const APPOINTMENTS=require('./appointments.model');
-const PAYMENTS=require('./payments.model');
 
 const db={};
 db.users=USERS;
@@ -19,7 +18,7 @@ db.products=PRODUCTS;
 db.order_items=ORDER_ITEMS;
 db.doctor_availability=DOCTOR_AVAILABILITY;
 db.Appointments=APPOINTMENTS;
-db.payments=PAYMENTS;
+
 
 db.users.hasOne(db.doctor_profiles,{foreignKey:'user_id'});
 db.doctor_profiles.belongsTo(db.users);
@@ -35,8 +34,6 @@ db.products.hasMany(db.order_items,{foreignKey:'product_id'});
 db.order_items.belongsTo(db.products);
 db.users.hasMany(db.Appointments,{foreignKey:'user_id'});
 db.Appointments.belongsTo(db.users);
-db.users.hasMany(db.payments,{foreignKey:'user_id'});
-db.payments.belongsTo(db.users);
 db.users.hasMany(db.addresses,{foreignKey:'user_id'});
 db.addresses.belongsTo(db.users);
 

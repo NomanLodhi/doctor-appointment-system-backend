@@ -12,7 +12,6 @@ const PORT=process.env.PORT;
         await db.users.sync({});
         await db.doctor_profiles.sync({});
         await db.orders.sync({});
-        await db.payments.sync({});
         await db.Appointments.sync({});
         await db.categories.sync({});
         await db.doctor_availability.sync({});

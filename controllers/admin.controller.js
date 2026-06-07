@@ -175,8 +175,9 @@ const getSingleorder=async(req,res)=>{
 }
 const registerDoctor=async(req,res)=>{
     try{
-    const {name,email,password,phone,role,gender,specialization,bio,avatar,fee,day_of_week,start_time,end_time}=req.body;
-    if(!name || !email || !password || !role || !gender || !specialization || !bio || !fee || !phone || !day_of_week || !start_time || !end_time){
+    const {name,email,password,phone,role,gender,specialization,bio,fee}=req.body;
+    const doctor_avatar=req.file.filename;
+    if(!name || !email || !password || !role || !gender || !specialization || !bio || !fee || !phone){
         await res.status(401).json({"msg":"All fields are required!!"});
     }    
      const user_id=req.user.id;
@@ -192,23 +193,17 @@ const registerDoctor=async(req,res)=>{
         doctor_profile:{
             specialization:specialization,
             bio:bio,
-            avatar:avatar,
+            avatar:doctor_avatar,
             fee:fee
-        },
-        doctor_availability:{
-            day_of_week:day_of_week,
-            start_time:start_time,
-            end_time:end_time
         }
      },{
-      include:[db.doctor_profiles,db.doctor_availability]
+      include:[db.doctor_profiles]
    })
-    const user= await db.users.findOne({where:{id:user_id}});
     await transporter.sendMail({
         from:"<nomanlodhi348@gmail.com>",
-        to:user.email,
-        subject:`Congrates ${user.name} you have been joined our online clinic`,
-        html:`<h1>Congrates ${user.name} you have been joined our online clinic</h1>
+        to:email,
+        subject:`Congrates ${name} you have been joined our online clinic`,
+        html:`<h1>Congrates ${name} you have been joined our online clinic</h1>
         <p>Looking forward working with you.</p>
         `
     })
@@ -218,5 +213,64 @@ const registerDoctor=async(req,res)=>{
         await res.status(401).json({"Status":"Error","msg":`Error while registring doctor ${err}!!`})
     }
 }
-
-module.exports={uploadCategory,editCategory,deleteCategory,uploadProduct,deleteProduct,editProduct,deleteImage,getAllorders,getSingleorder,registerDoctor};
+const editDoctor=async(req,res)=>{
+    try{
+    const {name,email,password,phone,role,gender,specialization,bio,fee}=req.body;
+    const {doctor_id}=req.params;
+    const doctor_avatar=req.file.filename
+    const SALT=await bcryptjs.genSalt(10);
+    const MIX=await bcryptjs.hash(password,SALT);
+    const doctor=await db.users.findOne({where:{id:doctor_id}});
+    if(!doctor){
+     await res.status(404).json({"Status":"Error","msg":"Doctor not found!!"})    
+    }
+    await db.users.update({
+        name:name,
+        email:email,
+        password:MIX,
+        phone:phone,
+        role:role,
+        gender:gender
+    },{where:{id:doctor_id}})
+    await db.doctor_profiles.update({
+        specialization:specialization,
+            bio:bio,
+            avatar:doctor_avatar,
+            fee:fee
+    },{where:{user_id:doctor_id}})
+    
+    await res.status(200).json({"Status":"Success","Data":"Doctor edited successfully!!"})
+}
+catch(err){
+    await res.status(401).json({"Status":"Error","msg":`Error while editing doctor ${err}!!`})
+    }
+}
+const doctorSchedule=async(req,res)=>{
+    try{
+    const {day_of_week,start_time,end_time}=req.body;    
+    const {doctor_id}=req.params;    
+    await db.doctor_availability.create({
+        day_of_week:day_of_week,
+        start_time:start_time,
+        end_time:end_time,
+        doctor_id:doctor_id,
+        user_id:doctor_id
+    })
+    await res.status(200).json({"Status":"Success","msg":`Schedule set successfully!!`});
+    }
+    
+    catch(err){
+    await res.status(401).json({"Status":"Error","msg":`Error setting schedule ${err.message}`})
+    }
+}
+const deleteDoctor=async(req,res)=>{
+    try{
+    const {doctor_id}=req.params;
+    await db.users.destroy({where:{id:doctor_id}});    
+    await res.status(200).json({"Status":"Success","msg":`Doctor deleted successfully!!`});    
+    }
+    catch(err){
+    await res.status(400).json({"Status":"Error","msg":`Error while deleting doctor ${err.message}`})    
+    }
+}
+module.exports={uploadCategory,editCategory,deleteCategory,uploadProduct,deleteProduct,editProduct,deleteImage,getAllorders,getSingleorder,registerDoctor,doctorSchedule,deleteDoctor,editDoctor};

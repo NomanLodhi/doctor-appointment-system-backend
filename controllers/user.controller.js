@@ -12,7 +12,7 @@ const jwt_token=process.env.JWT;
 const userRegister=async(req,res)=>{
     try{
       const {name,email,phone,role,gender,password,city,province,postal_code}=req.body;
-      if(!name || !email || !phone || !role || !gender || !password || !city || !province || !postal_code){
+      if(!name || !email || !phone || !gender || !password || !city || !province || !postal_code){
          await res.status(401).json({'msg':'All fields are required!!'});
       }
       
@@ -22,7 +22,7 @@ const userRegister=async(req,res)=>{
       
      const SALT=await bcryptjs.genSalt(10);
      const MIX=await bcryptjs.hash(password,SALT)
-     const userRegistered= await db.users.create({name:name,email:email,phone:phone,role:role,gender:gender,password:MIX,
+     const userRegistered= await db.users.create({name:name,email:email,phone:phone,role:'Customer',gender:gender,password:MIX,
       addresses:{
          city:city,
          province:province,
@@ -31,7 +31,7 @@ const userRegister=async(req,res)=>{
    },{
       include:[db.addresses]
    })
-   await res.status(200).json({'status':'Success','data':userRegistered});
+   await res.status(200).json({'status':'Success','msg':'Signup successfully!!'});
    const info=await transporter.sendMail({
       from:"<nomanlodhi348@gmail.com>",
       to:email,

@@ -5,7 +5,7 @@ const { authentication_middleware, authorizeRole } = require('../middlewares/aut
 
 routes.post('/',authentication_middleware,authorizeRole('Customer'),placeOrder);
 routes.get('/my',authentication_middleware,authorizeRole('Customer'),getmyOrders);
-routes.get('/:id',authentication_middleware,authorizeRole('Customer'),getorderDetails);
+routes.get('/:id',authentication_middleware,authorizeRole('Customer','Admin'),getorderDetails);
 routes.patch('/:id',authentication_middleware,authorizeRole('Admin'),updateOrderstatus);
 
 module.exports=routes;
